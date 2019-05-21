@@ -18,6 +18,6 @@ private
 
   def find_model(klass_to_id)
     klass, id = klass_to_id.values_at('klass', 'id')
-    klass.constantize.find(id.to_i)
+    klass.constantize.find(id)
   end
 end
