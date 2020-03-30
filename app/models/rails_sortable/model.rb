@@ -12,12 +12,26 @@ module RailsSortable
   module Model
     def self.included(base)
       base.class_eval do
-        before_create :maximize_sort
+        if respond_to?(:before_create)
+          before_create :maximize_sort
+        end
       end
       base.extend ClassMethods
     end
 
     def update_sort!(new_value)
+      if respond_to?(:write_attribute)
+        active_record_update_sort!(new_value)
+      else
+        active_resource_update_sort!(new_value)
+      end
+    end
+    
+    def active_resource_update_sort!(new_value)
+      update sort_attribute => new_value
+    end
+    
+    def active_record_update_sort!(new_value)
       write_attribute sort_attribute, new_value
       if self.class.sortable_options[:silence_recording_timestamps]
         warn "[DEPRECATION] `silence_recording_timestamps` is deprecated. Please use `without_updating_timestamps` instead."

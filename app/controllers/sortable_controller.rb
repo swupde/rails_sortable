@@ -6,7 +6,13 @@ class SortableController < ApplicationController
     ActiveRecord::Base.transaction do
       params['rails_sortable'].each_with_index do |klass_to_id, new_sort|
         model = find_model(klass_to_id)
-        current_sort = model.read_attribute(model.class.sort_attribute)
+        model = model.first if model.is_a?(JsonApiClient::ResultSet)
+        if model.respond_to?(:read_attribute)
+          current_sort = model.read_attribute(model.class.sort_attribute)
+        else
+          current_sort = model.send(model.class.sort_attribute)
+        end
+        
         model.update_sort!(new_sort) if current_sort != new_sort
       end
     end
